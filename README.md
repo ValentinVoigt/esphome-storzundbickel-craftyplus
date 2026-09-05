@@ -43,6 +43,11 @@ packages:
 
 Keep the ESP32 within reliable Bluetooth range of the CRAFTY+. The integration maintains a native ESPHome BLE client connection to one device.
 
+> [!IMPORTANT]
+> The integration normally keeps its BLE connection to the CRAFTY+ open continuously. While it is connected, other devices cannot connect to the CRAFTY+, which means you cannot reconfigure it from another computer or phone. To make the CRAFTY+ available immediately, remove this package from the ESPHome configuration or power down the ESPHome device.
+>
+> The CRAFTY+ enables BLE while it is switched on or charging. Its Bluetooth automatic-shutdown setting can keep BLE available while the device is switched off and not charging, but doing so increases battery drain.
+
 ## Project notes
 
 I had fun using an LLM to help me write repetitive code and make some minor changes. I did the reverse engineering myself and read and understood every line of code.
