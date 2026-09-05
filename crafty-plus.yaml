@@ -610,12 +610,13 @@ switch:
       - delay: 250ms
       - component.update: sensor_ble_crafty_status_register_1
 
-  # Status register 2 bit 12 means ENABLE automatic BLE shutdown.
+  # Status register 2 bit 12 means automatic BLE shutdown is disabled, so
+  # Permanent Bluetooth is enabled.
   - platform: template
     device_id: crafty_device
-    name: "Bluetooth Auto Shutdown"
-    id: crafty_bluetooth_auto_shutdown
-    icon: "mdi:bluetooth-off"
+    name: "Permanent Bluetooth"
+    id: crafty_permanent_bluetooth
+    icon: "mdi:bluetooth-connect"
     entity_category: config
     lambda: |-
       if (!id(sensor_ble_crafty_status_register_2).has_state()) {

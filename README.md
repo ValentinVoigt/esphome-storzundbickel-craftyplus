@@ -9,7 +9,7 @@ This ESPHome package connects to a STORZ & BICKEL CRAFTY+ over BLE and exposes i
 
 - Monitor temperature, battery level, automatic-shutoff time, usage, and device information.
 - Set the target and boost temperatures, LED brightness, and automatic-shutoff timeout.
-- Control the heater, vibration, charge LED, Bluetooth shutdown, and find-device function.
+- Control the heater, vibration, charge LED, permanent Bluetooth, and find-device function.
 - Report operating modes and device diagnostics in Home Assistant.
 
 ## Home Assistant
@@ -46,7 +46,7 @@ Keep the ESP32 within reliable Bluetooth range of the CRAFTY+. The integration m
 > [!IMPORTANT]
 > The integration normally keeps its BLE connection to the CRAFTY+ open continuously. While it is connected, other devices cannot connect to the CRAFTY+, which means you cannot reconfigure it from another computer or phone. To make the CRAFTY+ available immediately, remove this package from the ESPHome configuration or power down the ESPHome device.
 >
-> The CRAFTY+ enables BLE while it is switched on or charging. Its Bluetooth automatic-shutdown setting can keep BLE available while the device is switched off and not charging, but doing so increases battery drain.
+> The CRAFTY+ enables BLE while it is switched on or charging. Enabling Permanent Bluetooth keeps BLE available while the device is switched off and not charging, but doing so increases battery drain.
 
 ## Project notes
 

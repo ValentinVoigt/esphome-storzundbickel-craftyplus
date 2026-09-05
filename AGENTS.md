@@ -113,7 +113,7 @@ Control the heater only with the dedicated Service 1 ON/OFF characteristics, nev
 | `0x0002` | Charge LED disabled | `Charge LED` is inverted |
 | `0x0004` | Target temperature reached | Read-only |
 | `0x0008` | Find-device active | Read-only state plus command |
-| `0x1000` | Automatic BLE shutdown enabled | Same polarity |
+| `0x1000` | Automatic BLE shutdown disabled | `Permanent Bluetooth` uses the same polarity |
 
 Writes must read-modify-write the full register and preserve unrelated and unknown bits. The current implementation uses the most recent sensor state, so nearly simultaneous controls can race. Find-device reportedly clears itself after about 30 seconds.
 
