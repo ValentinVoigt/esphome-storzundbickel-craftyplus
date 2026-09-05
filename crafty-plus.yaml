@@ -59,8 +59,6 @@ sensor:
     device_class: temperature
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    # Project status register 1 changes this fallback poll between 5 s while
-    # active and 60 s while inactive. Notifications can update it sooner.
     update_interval: 60s
     # The official web app subscribes to notifications on this characteristic.
     notify: true
@@ -175,8 +173,8 @@ sensor:
     device_class: duration
     unit_of_measurement: "s"
     accuracy_decimals: 0
-    # The device otherwise notifies about every 2.5 s indefinitely, including
-    # repeated zero values while inactive. Use the controlled dynamic poll.
+    # Do not subscribe: the device otherwise notifies about every 2.5 s
+    # indefinitely, including repeated zero values while inactive.
     update_interval: 60s
     notify: false
     lambda: |-
@@ -256,8 +254,7 @@ sensor:
     characteristic_uuid: "00000093-4c45-4b43-4942-265a524f5453"
     accuracy_decimals: 0
     # This is the source of the Active state. Notifications detect state
-    # changes; the poll remains a fallback and controls the dynamic rate of
-    # the four activity-sensitive characteristics.
+    # changes; the poll remains a fallback.
     update_interval: 60s
     notify: true
     internal: true
@@ -266,22 +263,6 @@ sensor:
         return NAN;
       }
       return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
-    on_value:
-      then:
-        - lambda: |-
-            const uint16_t reg = static_cast<uint16_t>(x);
-            const bool active = (reg & 0x0010U) != 0;
-            const uint32_t interval_ms = active ? 5000U : 60000U;
-
-            if (id(sensor_ble_crafty_current_temperature).get_update_interval() != interval_ms) {
-              id(sensor_ble_crafty_current_temperature).set_update_interval(interval_ms);
-              id(sensor_ble_crafty_auto_off_remaining).set_update_interval(interval_ms);
-              id(sensor_ble_crafty_status_register_1).set_update_interval(interval_ms);
-              id(sensor_ble_crafty_status_register_2).set_update_interval(interval_ms);
-              ESP_LOGI("crafty", "Device %s; activity-sensitive poll interval is now %u s",
-                       active ? "active" : "inactive",
-                       static_cast<unsigned int>(interval_ms / 1000U));
-            }
 
   - platform: ble_client
     ble_client_id: ble_client_crafty
@@ -292,8 +273,6 @@ sensor:
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
     accuracy_decimals: 0
-    # Project status register 1 changes this fallback poll between 5 s while
-    # active and 60 s while inactive. Notifications can update it sooner.
     update_interval: 60s
     notify: true
     internal: true
