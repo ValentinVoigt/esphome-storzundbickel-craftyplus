@@ -12,6 +12,16 @@ This ESPHome package connects to a STORZ & BICKEL CRAFTY+ over BLE and exposes i
 - Control the heater, vibration, charge LED, Bluetooth shutdown, and find-device function.
 - Report operating modes and device diagnostics in Home Assistant.
 
+## Home Assistant
+
+![CRAFTY+ controls in Home Assistant](screenshots/home-assistant-controls.png)
+
+![CRAFTY+ sensors in Home Assistant](screenshots/home-assistant-sensors.png)
+
+![CRAFTY+ configuration in Home Assistant](screenshots/home-assistant-configuration.png)
+
+![CRAFTY+ diagnostics in Home Assistant](screenshots/home-assistant-diagnostics.png)
+
 ## Requirements
 
 You need a CRAFTY+, an ESP32 board with Bluetooth support, and an existing [ESPHome](https://esphome.io/install/getting-started/) installation. I use ESPHome Device Builder with a generic BLE-capable ESP32 board. [Home Assistant](https://www.home-assistant.io/integrations/esphome/) is required to use the exposed entities in its user interface.
