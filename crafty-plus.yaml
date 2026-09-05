@@ -13,7 +13,6 @@ ble_client:
   - name: "${crafty_name}"
     id: ble_client_crafty
     mac_address: "${crafty_mac_address}"
-    auto_connect: true
 
 # -----------------------------------------------------------------------------
 # Raw BLE sensors
@@ -36,7 +35,6 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     update_interval: 5min
-    notify: false
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -59,7 +57,6 @@ sensor:
     device_class: temperature
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    update_interval: 60s
     # The official web app subscribes to notifications on this characteristic.
     notify: true
     lambda: |-
@@ -81,7 +78,6 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     update_interval: 5min
-    notify: false
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -105,7 +101,6 @@ sensor:
     characteristic_uuid: "00000041-4c45-4b43-4942-265a524f5453"
     device_class: battery
     unit_of_measurement: "%"
-    accuracy_decimals: 0
     update_interval: 5min
     # The source app subscribes to battery notifications.
     notify: true
@@ -126,9 +121,7 @@ sensor:
     service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000051-4c45-4b43-4942-265a524f5453"
     unit_of_measurement: "%"
-    accuracy_decimals: 0
     update_interval: 5min
-    notify: false
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -149,9 +142,7 @@ sensor:
     characteristic_uuid: "00000061-4c45-4b43-4942-265a524f5453"
     device_class: duration
     unit_of_measurement: "s"
-    accuracy_decimals: 0
     update_interval: 5min
-    notify: false
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -172,11 +163,8 @@ sensor:
     characteristic_uuid: "00000071-4c45-4b43-4942-265a524f5453"
     device_class: duration
     unit_of_measurement: "s"
-    accuracy_decimals: 0
     # Do not subscribe: the device otherwise notifies about every 2.5 s
     # indefinitely, including repeated zero values while inactive.
-    update_interval: 60s
-    notify: false
     lambda: |-
       if (x.size() < 2) {
         return NAN;
@@ -195,7 +183,6 @@ sensor:
     characteristic_uuid: "00000023-4c45-4b43-4942-265a524f5453"
     device_class: duration
     unit_of_measurement: "h"
-    accuracy_decimals: 0
     update_interval: 5min
     internal: true
     lambda: |-
@@ -214,7 +201,6 @@ sensor:
     characteristic_uuid: "000001e3-4c45-4b43-4942-265a524f5453"
     device_class: duration
     unit_of_measurement: "min"
-    accuracy_decimals: 0
     update_interval: 5min
     internal: true
     lambda: |-
@@ -252,10 +238,8 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000093-4c45-4b43-4942-265a524f5453"
-    accuracy_decimals: 0
     # This is the source of the Active state. Notifications detect state
     # changes; the poll remains a fallback.
-    update_interval: 60s
     notify: true
     internal: true
     lambda: |-
@@ -272,8 +256,6 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
-    accuracy_decimals: 0
-    update_interval: 60s
     notify: true
     internal: true
     lambda: |-
@@ -292,7 +274,6 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000083-4c45-4b43-4942-265a524f5453"
-    accuracy_decimals: 0
     update_interval: 5min
     internal: true
     lambda: |-
@@ -309,7 +290,6 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000063-4c45-4b43-4942-265a524f5453"
-    accuracy_decimals: 0
     update_interval: 5min
     internal: true
     lambda: |-
@@ -326,7 +306,6 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000073-4c45-4b43-4942-265a524f5453"
-    accuracy_decimals: 0
     update_interval: 5min
     internal: true
     lambda: |-
@@ -344,7 +323,6 @@ sensor:
     type: characteristic
     service_uuid: "00000002-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000072-4c45-4b43-4942-265a524f5453"
-    accuracy_decimals: 0
     update_interval: 6h
     internal: true
     lambda: |-
@@ -363,9 +341,6 @@ sensor:
     name: "BLE RSSI"
     type: rssi
     id: sensor_ble_crafty_rssi
-    unit_of_measurement: "dBm"
-    device_class: signal_strength
-    state_class: measurement
     entity_category: diagnostic
     update_interval: 5min
 
