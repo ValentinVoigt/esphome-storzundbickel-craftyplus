@@ -279,7 +279,8 @@ sensor:
               id(sensor_ble_crafty_status_register_1).set_update_interval(interval_ms);
               id(sensor_ble_crafty_status_register_2).set_update_interval(interval_ms);
               ESP_LOGI("crafty", "Device %s; activity-sensitive poll interval is now %u s",
-                       active ? "active" : "inactive", interval_ms / 1000U);
+                       active ? "active" : "inactive",
+                       static_cast<unsigned int>(interval_ms / 1000U));
             }
 
   - platform: ble_client
