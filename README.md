@@ -1,6 +1,7 @@
 # ESPHome CRAFTY+
 
 [![ESPHome compile](https://github.com/valentinvoigt/esphome-storzundbickel-craftyplus/actions/workflows/esphome.yml/badge.svg)](https://github.com/valentinvoigt/esphome-storzundbickel-craftyplus/actions/workflows/esphome.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 This ESPHome package connects to a STORZ & BICKEL CRAFTY+ over BLE and exposes its telemetry, settings, controls, and diagnostics to Home Assistant.
 
@@ -39,7 +40,12 @@ I had fun using an LLM to help me write repetitive code and make some minor chan
 
 My generic ESP32 also acts as an ESPHome `bluetooth_proxy` for other Bluetooth devices. The CRAFTY+ integration itself uses ESPHome's BLE client directly. I have not tested accessing the CRAFTY+ outside ESPHome, using Home Assistant's native Bluetooth support, or connecting through a separate Bluetooth proxy.
 
+## License
+
+This project is available under the [MIT License](LICENSE). You may use, modify, redistribute, and commercially use it as long as the copyright and license notice are retained.
+
 ## Disclaimer
 
 This is an unofficial project and is not affiliated with, endorsed by, or supported by STORZ & BICKEL. The software is provided without any guarantee of functionality, compatibility, or safety. Use it at your own risk and follow the device manufacturer’s safety instructions. This integration can control the heater and temperature settings; verify important settings on the device and do not leave it operating unattended.
+
 To the extent permitted by applicable law, the author and contributors are not liable for damage arising from its use. This does not limit liability that cannot legally be excluded or restricted.
