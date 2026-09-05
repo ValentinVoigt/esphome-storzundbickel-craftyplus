@@ -14,13 +14,12 @@ This ESPHome package connects to a STORZ & BICKEL CRAFTY+ over BLE and exposes i
 
 ## Home Assistant
 
-![CRAFTY+ controls in Home Assistant](screenshots/home-assistant-controls.png)
-
-![CRAFTY+ sensors in Home Assistant](screenshots/home-assistant-sensors.png)
-
-![CRAFTY+ configuration in Home Assistant](screenshots/home-assistant-configuration.png)
-
-![CRAFTY+ diagnostics in Home Assistant](screenshots/home-assistant-diagnostics.png)
+<p>
+  <a href="screenshots/home-assistant-controls.png"><img src="screenshots/home-assistant-controls.png" alt="CRAFTY+ controls in Home Assistant" width="400"></a>
+  <a href="screenshots/home-assistant-configuration.png"><img src="screenshots/home-assistant-configuration.png" alt="CRAFTY+ configuration in Home Assistant" width="400"></a><br>
+  <a href="screenshots/home-assistant-sensors.png"><img src="screenshots/home-assistant-sensors.png" alt="CRAFTY+ sensors in Home Assistant" width="400"></a>
+  <a href="screenshots/home-assistant-diagnostics.png"><img src="screenshots/home-assistant-diagnostics.png" alt="CRAFTY+ diagnostics in Home Assistant" width="400"></a>
+</p>
 
 ## Requirements
 
