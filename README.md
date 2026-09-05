@@ -12,6 +12,12 @@ This ESPHome package connects to a STORZ & BICKEL CRAFTY+ over BLE and exposes i
 - Control the heater, vibration, charge LED, permanent Bluetooth, and find-device function.
 - Report operating modes and device diagnostics in Home Assistant.
 
+> [!CAUTION]
+> The CRAFTY+ has BLE enabled while it is switched on, while charging, when the "Permanent Bluetooth" feature is enabled or when a connection is already made. Since this tool will keep a permenent connection, the CRAFTY+ will **keep BLE enabled permanently**.
+
+> [!NOTE]
+> Should the ESPHome device lose connection to the CRAFTY+, it may not reconnect automatically, unless "Permanent Bluetooth" is enabled or the CRAFTY+ is turned on or charged.
+
 ## Home Assistant
 
 <p>
@@ -42,11 +48,6 @@ packages:
 3. Compile and install the resulting configuration with ESPHome. Once the ESP32 is online, add or accept the discovered ESPHome device in Home Assistant.
 
 Keep the ESP32 within reliable Bluetooth range of the CRAFTY+. The integration maintains a native ESPHome BLE client connection to one device.
-
-> [!IMPORTANT]
-> The integration normally keeps its BLE connection to the CRAFTY+ open continuously. While it is connected, other devices cannot connect to the CRAFTY+, which means you cannot reconfigure it from another computer or phone. To make the CRAFTY+ available immediately, remove this package from the ESPHome configuration or power down the ESPHome device.
->
-> The CRAFTY+ enables BLE while it is switched on or charging. Enabling Permanent Bluetooth keeps BLE available while the device is switched off and not charging, but doing so increases battery drain.
 
 ## Project notes
 
