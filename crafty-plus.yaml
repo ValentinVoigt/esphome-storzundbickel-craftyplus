@@ -1,0 +1,923 @@
+substitutions:
+  crafty_name: "CRAFTY+"
+  crafty_mac_address: "00:00:00:00:00:00"
+
+esphome:
+  devices:
+    - id: crafty_device
+      name: "${crafty_name}"
+
+esp32_ble_tracker:
+
+ble_client:
+  - name: "${crafty_name}"
+    id: ble_client_crafty
+    mac_address: "${crafty_mac_address}"
+    auto_connect: true
+
+# -----------------------------------------------------------------------------
+# Raw BLE sensors
+# -----------------------------------------------------------------------------
+# Writable characteristics are read here as internal backend sensors. Template
+# number/switch entities below expose the user-facing controls in Home Assistant.
+
+sensor:
+  # --- Temperatures -----------------------------------------------------------
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Target Temperature BLE"
+    id: sensor_ble_crafty_target_temperature
+    type: characteristic
+    service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000021-4c45-4b43-4942-265a524f5453"
+    device_class: temperature
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    update_interval: 30s
+    notify: false
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      uint16_t raw = (static_cast<uint16_t>(x[1]) << 8) | x[0];
+      return raw / 10.0f;
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Current Temperature"
+    id: sensor_ble_crafty_current_temperature
+    type: characteristic
+    service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000011-4c45-4b43-4942-265a524f5453"
+    device_class: temperature
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    update_interval: 30s
+    # The official web app subscribes to notifications on this characteristic.
+    notify: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      uint16_t raw = (static_cast<uint16_t>(x[1]) << 8) | x[0];
+      return raw / 10.0f;
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Boost Temperature BLE"
+    id: sensor_ble_crafty_boost_temperature
+    type: characteristic
+    service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000031-4c45-4b43-4942-265a524f5453"
+    device_class: temperature
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    update_interval: 30s
+    notify: false
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      uint16_t raw = (static_cast<uint16_t>(x[1]) << 8) | x[0];
+      return raw / 10.0f;
+
+  # --- Battery ---------------------------------------------------------------
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Battery"
+    id: sensor_ble_crafty_battery
+    type: characteristic
+    service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000041-4c45-4b43-4942-265a524f5453"
+    device_class: battery
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    update_interval: 60s
+    # The source app subscribes to battery notifications.
+    notify: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  # --- User settings: read-back values --------------------------------------
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "LED Brightness BLE"
+    id: sensor_ble_crafty_led_brightness
+    type: characteristic
+    service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000051-4c45-4b43-4942-265a524f5453"
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    update_interval: 60s
+    notify: false
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Automatic Shutoff Timeout BLE"
+    id: sensor_ble_crafty_auto_off_timeout
+    type: characteristic
+    service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000061-4c45-4b43-4942-265a524f5453"
+    device_class: duration
+    unit_of_measurement: "s"
+    accuracy_decimals: 0
+    update_interval: 60s
+    notify: false
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Automatic Shutoff Remaining"
+    id: sensor_ble_crafty_auto_off_remaining
+    type: characteristic
+    service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000071-4c45-4b43-4942-265a524f5453"
+    device_class: duration
+    unit_of_measurement: "s"
+    accuracy_decimals: 0
+    update_interval: 30s
+    notify: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  # --- Accumulated usage -----------------------------------------------------
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Accumulated Hours"
+    id: sensor_ble_crafty_accumulated_hours
+    type: characteristic
+    service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000023-4c45-4b43-4942-265a524f5453"
+    device_class: duration
+    unit_of_measurement: "h"
+    accuracy_decimals: 0
+    update_interval: 5min
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Accumulated Minutes"
+    id: sensor_ble_crafty_accumulated_minutes
+    type: characteristic
+    service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "000001e3-4c45-4b43-4942-265a524f5453"
+    device_class: duration
+    unit_of_measurement: "min"
+    accuracy_decimals: 0
+    update_interval: 5min
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  - platform: template
+    device_id: crafty_device
+    name: "Accumulated Usage"
+    id: crafty_total_usage
+    device_class: duration
+    unit_of_measurement: "h"
+    accuracy_decimals: 2
+    state_class: total_increasing
+    update_interval: 60s
+    lambda: |-
+      if (!id(sensor_ble_crafty_accumulated_hours).has_state() ||
+          !id(sensor_ble_crafty_accumulated_minutes).has_state()) {
+        return NAN;
+      }
+      return id(sensor_ble_crafty_accumulated_hours).state
+           + id(sensor_ble_crafty_accumulated_minutes).state / 60.0f;
+
+  # --- Project status registers ---------------------------------------------
+  # IMPORTANT: both are 16-bit little-endian values. Explicit lambdas are
+  # required; otherwise BLE Client Sensor only uses the first byte.
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Project Status Register 1"
+    id: sensor_ble_crafty_status_register_1
+    type: characteristic
+    service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000093-4c45-4b43-4942-265a524f5453"
+    accuracy_decimals: 0
+    update_interval: 60s
+    notify: true
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Project Status Register 2"
+    id: sensor_ble_crafty_status_register_2
+    type: characteristic
+    service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+    accuracy_decimals: 0
+    update_interval: 60s
+    notify: true
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  # --- Diagnostic registers -------------------------------------------------
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "System Status Register"
+    id: sensor_ble_crafty_system_status
+    type: characteristic
+    service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000083-4c45-4b43-4942-265a524f5453"
+    accuracy_decimals: 0
+    update_interval: 5min
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Battery Status Register 1"
+    id: sensor_ble_crafty_battery_status_1
+    type: characteristic
+    service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000063-4c45-4b43-4942-265a524f5453"
+    accuracy_decimals: 0
+    update_interval: 5min
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Battery Status Register 2"
+    id: sensor_ble_crafty_battery_status_2
+    type: characteristic
+    service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000073-4c45-4b43-4942-265a524f5453"
+    accuracy_decimals: 0
+    update_interval: 5min
+    internal: true
+    lambda: |-
+      if (x.size() < 2) {
+        return NAN;
+      }
+      return static_cast<float>((static_cast<uint16_t>(x[1]) << 8) | x[0]);
+
+  # BLE firmware is three binary version bytes in the source app.
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "BLE Firmware Packed"
+    id: sensor_ble_crafty_ble_firmware_packed
+    type: characteristic
+    service_uuid: "00000002-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000072-4c45-4b43-4942-265a524f5453"
+    accuracy_decimals: 0
+    update_interval: 6h
+    internal: true
+    lambda: |-
+      if (x.size() < 3) {
+        return NAN;
+      }
+      uint32_t packed = (static_cast<uint32_t>(x[0]) << 16)
+                      | (static_cast<uint32_t>(x[1]) << 8)
+                      | static_cast<uint32_t>(x[2]);
+      return static_cast<float>(packed);
+
+  # BLE RSSI is useful for diagnosing marginal links.
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "BLE RSSI"
+    type: rssi
+    id: sensor_ble_crafty_rssi
+    unit_of_measurement: "dBm"
+    device_class: signal_strength
+    state_class: measurement
+    entity_category: diagnostic
+    update_interval: 60s
+
+# -----------------------------------------------------------------------------
+# Device information
+# -----------------------------------------------------------------------------
+
+text_sensor:
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Serial Number"
+    id: text_sensor_ble_crafty_serial
+    service_uuid: "00000002-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000052-4c45-4b43-4942-265a524f5453"
+    update_interval: 6h
+    entity_category: diagnostic
+    filters:
+      - lambda: |-
+          auto nul = x.find('\0');
+          if (nul != std::string::npos) {
+            x.resize(nul);
+          }
+          if (x.size() > 8) {
+            x.resize(8);
+          }
+          return x;
+
+  - platform: ble_client
+    ble_client_id: ble_client_crafty
+    device_id: crafty_device
+    name: "Firmware Version"
+    id: text_sensor_ble_crafty_firmware
+    service_uuid: "00000002-4c45-4b43-4942-265a524f5453"
+    characteristic_uuid: "00000032-4c45-4b43-4942-265a524f5453"
+    update_interval: 6h
+    entity_category: diagnostic
+    filters:
+      - lambda: |-
+          auto nul = x.find('\0');
+          if (nul != std::string::npos) {
+            x.resize(nul);
+          }
+          return x;
+
+  - platform: template
+    device_id: crafty_device
+    name: "BLE Firmware Version"
+    id: text_sensor_crafty_ble_firmware
+    entity_category: diagnostic
+    update_interval: 60s
+    lambda: |-
+      if (!id(sensor_ble_crafty_ble_firmware_packed).has_state()) {
+        return {};
+      }
+      uint32_t packed = static_cast<uint32_t>(id(sensor_ble_crafty_ble_firmware_packed).state);
+      uint8_t major = (packed >> 16) & 0xFF;
+      uint8_t minor = (packed >> 8) & 0xFF;
+      uint8_t patch = packed & 0xFF;
+      char buf[20];
+      snprintf(buf, sizeof(buf), "V%u.%u.%u", major, minor, patch);
+      return std::string(buf);
+
+# -----------------------------------------------------------------------------
+# Writable numeric settings
+# -----------------------------------------------------------------------------
+
+number:
+  # Target temperature: source app uses 40..210 °C and writes uint16(temp * 10).
+  # It then rewrites boost temperature. We preserve that behavior and clamp
+  # boost so target + boost never exceeds 210 °C.
+  - platform: template
+    device_id: crafty_device
+    name: "Target Temperature"
+    id: crafty_target_temperature
+    device_class: temperature
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer"
+    min_value: 40
+    max_value: 210
+    step: 1
+    mode: box
+    update_interval: 2s
+    lambda: |-
+      return id(sensor_ble_crafty_target_temperature).state;
+    set_action:
+      - if:
+          condition:
+            lambda: |-
+              return id(sensor_ble_crafty_boost_temperature).has_state();
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "00000021-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t raw = static_cast<uint16_t>(lroundf(x * 10.0f));
+                  return {
+                    static_cast<uint8_t>(raw & 0xFF),
+                    static_cast<uint8_t>((raw >> 8) & 0xFF)
+                  };
+
+            # Match the web app: rewrite boost after target temperature.
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "00000031-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  float boost = id(sensor_ble_crafty_boost_temperature).state;
+                  float max_boost = 210.0f - x;
+                  if (max_boost < 0.0f) max_boost = 0.0f;
+                  if (boost > max_boost) boost = max_boost;
+                  if (boost < 0.0f) boost = 0.0f;
+                  uint16_t raw = static_cast<uint16_t>(lroundf(boost * 10.0f));
+                  return {
+                    static_cast<uint8_t>(raw & 0xFF),
+                    static_cast<uint8_t>((raw >> 8) & 0xFF)
+                  };
+
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_target_temperature
+            - component.update: sensor_ble_crafty_boost_temperature
+
+  # Boost is an offset, not an absolute target. The web app uses a 1..99 °C UI
+  # range, but its target-temperature clamp can reduce boost to 0 at 210 °C.
+  - platform: template
+    device_id: crafty_device
+    name: "Boost Temperature"
+    id: crafty_boost_temperature
+    device_class: temperature
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer-plus"
+    min_value: 0
+    max_value: 99
+    step: 1
+    mode: box
+    update_interval: 2s
+    lambda: |-
+      return id(sensor_ble_crafty_boost_temperature).state;
+    set_action:
+      - if:
+          condition:
+            lambda: |-
+              return id(sensor_ble_crafty_target_temperature).has_state();
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "00000031-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  float target = id(sensor_ble_crafty_target_temperature).state;
+                  float boost = x;
+                  float max_boost = 210.0f - target;
+                  if (max_boost < 0.0f) max_boost = 0.0f;
+                  if (boost > max_boost) boost = max_boost;
+                  if (boost < 0.0f) boost = 0.0f;
+                  uint16_t raw = static_cast<uint16_t>(lroundf(boost * 10.0f));
+                  return {
+                    static_cast<uint8_t>(raw & 0xFF),
+                    static_cast<uint8_t>((raw >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_boost_temperature
+
+  # The source app explicitly configures the brightness slider as 0..100, step 10.
+  - platform: template
+    device_id: crafty_device
+    name: "LED Brightness"
+    id: crafty_led_brightness
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-6"
+    min_value: 0
+    max_value: 100
+    step: 10
+    mode: slider
+    entity_category: config
+    update_interval: 2s
+    lambda: |-
+      return id(sensor_ble_crafty_led_brightness).state;
+    set_action:
+      - ble_client.ble_write:
+          id: ble_client_crafty
+          service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+          characteristic_uuid: "00000051-4c45-4b43-4942-265a524f5453"
+          value: !lambda |-
+            uint16_t raw = static_cast<uint16_t>(lroundf(x));
+            return {
+              static_cast<uint8_t>(raw & 0xFF),
+              static_cast<uint8_t>((raw >> 8) & 0xFF)
+            };
+      - delay: 250ms
+      - component.update: sensor_ble_crafty_led_brightness
+
+  # The source sets the maximum to 300 s, but the JS does not contain the HTML
+  # slider's minimum. 30 s is used here as a conservative user-facing floor.
+  # Writing this setting requires security code 815 first, exactly as in the app.
+  - platform: template
+    device_id: crafty_device
+    name: "Automatic Shutoff Timeout"
+    id: crafty_auto_off_timeout
+    device_class: duration
+    unit_of_measurement: "s"
+    icon: "mdi:timer-cog-outline"
+    min_value: 30
+    max_value: 300
+    step: 1
+    mode: box
+    entity_category: config
+    update_interval: 2s
+    lambda: |-
+      return id(sensor_ble_crafty_auto_off_timeout).state;
+    set_action:
+      # Security/unlock code 815 (0x032F), uint16 little-endian.
+      - ble_client.ble_write:
+          id: ble_client_crafty
+          service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+          characteristic_uuid: "000001b3-4c45-4b43-4942-265a524f5453"
+          value: [0x2F, 0x03]
+
+      - ble_client.ble_write:
+          id: ble_client_crafty
+          service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+          characteristic_uuid: "00000061-4c45-4b43-4942-265a524f5453"
+          value: !lambda |-
+            uint16_t raw = static_cast<uint16_t>(lroundf(x));
+            return {
+              static_cast<uint8_t>(raw & 0xFF),
+              static_cast<uint8_t>((raw >> 8) & 0xFF)
+            };
+
+      - delay: 250ms
+      - component.update: sensor_ble_crafty_auto_off_timeout
+
+# -----------------------------------------------------------------------------
+# Writable boolean controls
+# -----------------------------------------------------------------------------
+
+switch:
+  # Heater command. The actual state comes from project status register 1 bit 4.
+  - platform: template
+    device_id: crafty_device
+    name: "Heater"
+    id: crafty_heater
+    icon: "mdi:radiator"
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_1).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_1).state);
+      return (reg & (1U << 4)) != 0;
+    turn_on_action:
+      - ble_client.ble_write:
+          id: ble_client_crafty
+          service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+          characteristic_uuid: "00000081-4c45-4b43-4942-265a524f5453"
+          value: [0x00, 0x00]
+      - delay: 250ms
+      - component.update: sensor_ble_crafty_status_register_1
+    turn_off_action:
+      - ble_client.ble_write:
+          id: ble_client_crafty
+          service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
+          characteristic_uuid: "00000091-4c45-4b43-4942-265a524f5453"
+          value: [0x00, 0x00]
+      - delay: 250ms
+      - component.update: sensor_ble_crafty_status_register_1
+
+  # Status register 2 bit 12 means ENABLE automatic BLE shutdown.
+  - platform: template
+    device_id: crafty_device
+    name: "Bluetooth Auto Shutdown"
+    id: crafty_bluetooth_auto_shutdown
+    icon: "mdi:bluetooth-off"
+    entity_category: config
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_2).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+      return (reg & (1U << 12)) != 0;
+    turn_on_action:
+      - if:
+          condition:
+            lambda: 'return id(sensor_ble_crafty_status_register_2).has_state();'
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+                  reg |= (1U << 12);
+                  return {
+                    static_cast<uint8_t>(reg & 0xFF),
+                    static_cast<uint8_t>((reg >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_status_register_2
+    turn_off_action:
+      - if:
+          condition:
+            lambda: 'return id(sensor_ble_crafty_status_register_2).has_state();'
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+                  reg &= ~(1U << 12);
+                  return {
+                    static_cast<uint8_t>(reg & 0xFF),
+                    static_cast<uint8_t>((reg >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_status_register_2
+
+  # Register bit 0 means DISABLE vibration, so the user-facing switch is inverted.
+  - platform: template
+    device_id: crafty_device
+    name: "Vibration"
+    id: crafty_vibration
+    icon: "mdi:vibrate"
+    entity_category: config
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_2).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+      return (reg & (1U << 0)) == 0;
+    turn_on_action:
+      - if:
+          condition:
+            lambda: 'return id(sensor_ble_crafty_status_register_2).has_state();'
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+                  reg &= ~(1U << 0);
+                  return {
+                    static_cast<uint8_t>(reg & 0xFF),
+                    static_cast<uint8_t>((reg >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_status_register_2
+    turn_off_action:
+      - if:
+          condition:
+            lambda: 'return id(sensor_ble_crafty_status_register_2).has_state();'
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+                  reg |= (1U << 0);
+                  return {
+                    static_cast<uint8_t>(reg & 0xFF),
+                    static_cast<uint8_t>((reg >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_status_register_2
+
+  # Register bit 1 means DISABLE charge LED, so this is also inverted.
+  - platform: template
+    device_id: crafty_device
+    name: "Charge LED"
+    id: crafty_charge_led
+    icon: "mdi:led-on"
+    entity_category: config
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_2).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+      return (reg & (1U << 1)) == 0;
+    turn_on_action:
+      - if:
+          condition:
+            lambda: 'return id(sensor_ble_crafty_status_register_2).has_state();'
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+                  reg &= ~(1U << 1);
+                  return {
+                    static_cast<uint8_t>(reg & 0xFF),
+                    static_cast<uint8_t>((reg >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_status_register_2
+    turn_off_action:
+      - if:
+          condition:
+            lambda: 'return id(sensor_ble_crafty_status_register_2).has_state();'
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+                  reg |= (1U << 1);
+                  return {
+                    static_cast<uint8_t>(reg & 0xFF),
+                    static_cast<uint8_t>((reg >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_status_register_2
+
+# -----------------------------------------------------------------------------
+# Read-only status / diagnostic binary sensors
+# -----------------------------------------------------------------------------
+
+binary_sensor:
+  - platform: template
+    device_id: crafty_device
+    name: "Active"
+    id: crafty_active
+    icon: "mdi:power"
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_1).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_1).state);
+      return (reg & (1U << 4)) != 0;
+
+  - platform: template
+    device_id: crafty_device
+    name: "Boost Mode"
+    id: crafty_boost_mode
+    icon: "mdi:plus-box"
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_1).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_1).state);
+      return (reg & (1U << 5)) != 0;
+
+  - platform: template
+    device_id: crafty_device
+    name: "Superboost Mode"
+    id: crafty_superboost_mode
+    icon: "mdi:plus-box-multiple"
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_1).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_1).state);
+      return (reg & (1U << 6)) != 0;
+
+  - platform: template
+    device_id: crafty_device
+    name: "Temperature Reached"
+    id: crafty_temperature_reached
+    icon: "mdi:thermometer-check"
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_2).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+      return (reg & (1U << 2)) != 0;
+
+  - platform: template
+    device_id: crafty_device
+    name: "Find Device Active"
+    id: crafty_find_device_active
+    icon: "mdi:radar"
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_2).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+      return (reg & (1U << 3)) != 0;
+
+  # These diagnostic interpretations are taken directly from the source app's
+  # device-analysis logic.
+  - platform: template
+    device_id: crafty_device
+    name: "Service Required"
+    id: crafty_service_required
+    device_class: problem
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(sensor_ble_crafty_status_register_1).has_state() ||
+          !id(sensor_ble_crafty_battery_status_1).has_state() ||
+          !id(sensor_ble_crafty_system_status).has_state()) {
+        return {};
+      }
+      uint16_t project = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_1).state);
+      uint16_t battery = static_cast<uint16_t>(id(sensor_ble_crafty_battery_status_1).state);
+      uint16_t system = static_cast<uint16_t>(id(sensor_ble_crafty_system_status).state);
+      return ((battery & 1536U) != 0) ||
+             ((system & 512U) != 0) ||
+             ((project & 8200U) != 0);
+
+  - platform: template
+    device_id: crafty_device
+    name: "Cooling Required"
+    id: crafty_cooling_required
+    device_class: problem
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(sensor_ble_crafty_battery_status_1).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_battery_status_1).state);
+      return (reg & 16640U) != 0;
+
+  - platform: template
+    device_id: crafty_device
+    name: "Charge Required"
+    id: crafty_charge_required
+    device_class: problem
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(sensor_ble_crafty_battery_status_1).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_battery_status_1).state);
+      return (reg & 3U) != 0;
+
+  - platform: template
+    device_id: crafty_device
+    name: "Charger or Cable Problem"
+    id: crafty_charger_cable_problem
+    device_class: problem
+    entity_category: diagnostic
+    lambda: |-
+      if (!id(sensor_ble_crafty_battery_status_2).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_battery_status_2).state);
+      return (reg & 32768U) != 0;
+
+# -----------------------------------------------------------------------------
+# Momentary commands
+# -----------------------------------------------------------------------------
+
+button:
+  - platform: template
+    device_id: crafty_device
+    name: "Find my CRAFTY+"
+    id: crafty_find_my_device
+    device_class: identify
+    on_press:
+      - if:
+          condition:
+            lambda: 'return id(sensor_ble_crafty_status_register_2).has_state();'
+          then:
+            - ble_client.ble_write:
+                id: ble_client_crafty
+                service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
+                characteristic_uuid: "000001c3-4c45-4b43-4942-265a524f5453"
+                value: !lambda |-
+                  uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_status_register_2).state);
+                  reg |= (1U << 3);
+                  return {
+                    static_cast<uint8_t>(reg & 0xFF),
+                    static_cast<uint8_t>((reg >> 8) & 0xFF)
+                  };
+            - delay: 250ms
+            - component.update: sensor_ble_crafty_status_register_2
