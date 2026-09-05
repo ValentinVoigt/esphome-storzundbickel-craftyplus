@@ -1,0 +1,17 @@
+substitutions:
+  crafty_name: "CRAFTY+ CI"
+  crafty_mac_address: "00:00:00:00:00:00"
+
+esphome:
+  name: crafty-plus-ci
+  friendly_name: "CRAFTY+ CI"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+logger:
+
+packages:
+  crafty_plus: !include ../../crafty-plus.yaml

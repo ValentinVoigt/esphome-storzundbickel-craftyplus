@@ -1,0 +1,29 @@
+name: ESPHome compile
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: esphome-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compile:
+    name: Compile test configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Compile ESPHome configuration
+        uses: esphome/build-action@ae5408cdbc4f70692bf8e345c4982bca05a93667 # v8.1.0
+        with:
+          yaml-file: .github/ci/crafty-plus.yaml

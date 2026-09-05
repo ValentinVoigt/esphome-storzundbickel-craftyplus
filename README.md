@@ -1,5 +1,7 @@
 # ESPHome CRAFTY+
 
+[![ESPHome compile](https://github.com/valentinvoigt/esphome-storzundbickel-craftyplus/actions/workflows/esphome.yml/badge.svg)](https://github.com/valentinvoigt/esphome-storzundbickel-craftyplus/actions/workflows/esphome.yml)
+
 This ESPHome package connects to a STORZ & BICKEL CRAFTY+ over BLE and exposes its telemetry, settings, controls, and diagnostics to Home Assistant.
 
 Add the package to an ESP32 configuration, replacing name and the MAC address:
