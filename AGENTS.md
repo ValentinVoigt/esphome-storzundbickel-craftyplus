@@ -16,7 +16,7 @@ When information conflicts, use this order:
 4. ESPHome documentation and implementation details.
 5. Inference.
 
-Always label inference. Treat the copyrighted vendor JavaScript as read-only reverse-engineering input; do not copy it into implementation or public documentation.
+Always label inference. Use only devices and vendor material accessed lawfully or with authorization. Publish independently written implementation and protocol facts only; never copy vendor source or substantial excerpts into the implementation or public documentation.
 
 ## Home Assistant device model
 
@@ -121,7 +121,7 @@ Writes must read-modify-write the full register and preserve unrelated and unkno
 
 Automatic shutoff requires security code 815 (`0x032F`, bytes `0x2F 0x03`) immediately before writing timeout seconds. The known maximum is 300 seconds; the package's 30-second minimum is an inference.
 
-Factory reset is intentionally not exposed. Its vendor sequence uses security code 1000 (`0x03E8`), writes `uint8 0` to `000001d3-...`, then refreshes settings. Do not conflate its unlock code with the automatic-shutoff code.
+Factory reset is intentionally not exposed. Do not add it or reuse the automatic-shutoff unlock code for it without verified need and physical-device testing.
 
 ## Diagnostics
 
@@ -144,19 +144,10 @@ Accumulated usage is `hours + minutes / 60.0`; the minutes register is interpret
 
 The package targets a tested modern CRAFTY+. The vendor app treats approximately `minor < 51 && major <= 2` as old firmware and disables several features. Do not claim old-firmware support without evidence.
 
-## Entities and behavior
+## Implementation constraints
 
-User-facing entities include current temperature, battery, automatic-shutoff remaining, accumulated usage, RSSI, identity and firmware; target and boost temperature, LED brightness, automatic-shutoff timeout; heater, Bluetooth automatic shutdown, vibration, charge LED; active/boost/superboost and diagnostic states; and find-device.
+Keep raw writable values, usage components, registers, and packed BLE firmware internal. Factory reset remains unexposed.
 
-Raw writable values, usage components, registers, and packed BLE firmware remain internal. Factory reset remains unexposed. Notifications are used for current temperature, battery, automatic-shutoff remaining, and both project status registers, with periodic reads for refresh.
+Use notifications for current temperature, battery, and both project status registers. Poll automatic-shutoff remaining; enabling its notifications causes repeated updates about every 2.5 seconds, including zero while inactive.
 
-Always preserve unknown register bits, the target-plus-boost invariant, the protected-write sequence, explicit little-endian handling, payload bounds checks, and logical-device assignment. Never hard-code credentials or a real device MAC address.
-
-## Known assumptions
-
-- Automatic-shutoff minimum: 30 seconds is inferred; only the 300-second maximum is confirmed.
-- Temperature representation: modern firmware Celsius × 10 only.
-- Error masks: composite interpretations only.
-- BLE firmware: exactly three version bytes.
-- Find-device duration: reported by the vendor UI as about 30 seconds.
-- Old firmware: unsupported unless separately investigated and tested.
+Always preserve unknown register bits, the target-plus-boost invariant, the protected-write sequence, explicit little-endian handling, payload bounds checks, and logical-device assignment. Never commit credentials, real MAC addresses or serial numbers, or unsanitized logs and BLE captures containing device identifiers.
