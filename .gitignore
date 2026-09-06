@@ -1,2 +1,4 @@
 .esphome/
 official-source/
+/secrets.yaml
+/device.yaml
