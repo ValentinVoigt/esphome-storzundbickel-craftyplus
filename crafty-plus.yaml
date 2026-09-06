@@ -824,6 +824,21 @@ binary_sensor:
     entity_category: diagnostic
     lambda: "return id(crafty_ble_connected);"
 
+  # Inference from physical-device testing: battery status register 2 bit 13
+  # followed two unplug/replug cycles
+  - platform: template
+    device_id: crafty_device
+    name: "Charger Connected"
+    id: crafty_charger_connected
+    device_class: plug
+    icon: "mdi:power-plug"
+    lambda: |-
+      if (!id(sensor_ble_crafty_battery_status_2).has_state()) {
+        return {};
+      }
+      uint16_t reg = static_cast<uint16_t>(id(sensor_ble_crafty_battery_status_2).state);
+      return (reg & 0x2000U) != 0;
+
   - platform: template
     device_id: crafty_device
     name: "Active"

@@ -117,6 +117,15 @@ Control the heater only with the dedicated Service 1 ON/OFF characteristics, nev
 
 Writes must read-modify-write the full register and preserve unrelated and unknown bits. The current implementation uses the most recent sensor state, so nearly simultaneous controls can race. Find-device reportedly clears itself after about 30 seconds.
 
+## Battery status register 2 (`00000073`)
+
+| Mask | Meaning when set | Evidence |
+|---:|---|---|
+| `0x2000` | Charger connected | Inference from two observed unplug/replug cycles |
+| `0x8000` | Charger or cable problem | Vendor device-analysis logic |
+
+The `0x2000` interpretation is not present in the vendor app and is therefore tentative. On the tested physical CRAFTY+, it tracked two unplug/replug cycles exactly, but it has not been verified at full charge. It may indicate active charging rather than physical charger presence in that state. Keep the Home Assistant entity named `Charger Connected` unless further physical-device testing disproves this interpretation.
+
 ## Protected writes
 
 Automatic shutoff requires security code 815 (`0x032F`, bytes `0x2F 0x03`) immediately before writing timeout seconds. The known maximum is 300 seconds; the package's 30-second minimum is an inference.
