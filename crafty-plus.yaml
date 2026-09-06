@@ -13,6 +13,22 @@ ble_client:
   - name: "${crafty_name}"
     id: ble_client_crafty
     mac_address: "${crafty_mac_address}"
+    on_connect:
+      then:
+        - lambda: |-
+            id(crafty_ble_connected) = true;
+            id(crafty_connected).publish_state(true);
+    on_disconnect:
+      then:
+        - lambda: |-
+            id(crafty_ble_connected) = false;
+            id(crafty_connected).publish_state(false);
+
+globals:
+  - id: crafty_ble_connected
+    type: bool
+    restore_value: false
+    initial_value: "false"
 
 # -----------------------------------------------------------------------------
 # Raw BLE sensors
@@ -798,6 +814,16 @@ switch:
 # -----------------------------------------------------------------------------
 
 binary_sensor:
+  # Keep an always-defined entity on the logical device while the CRAFTY+ is
+  # sleeping or otherwise unavailable over BLE.
+  - platform: template
+    device_id: crafty_device
+    name: "Connected"
+    id: crafty_connected
+    device_class: connectivity
+    entity_category: diagnostic
+    lambda: "return id(crafty_ble_connected);"
+
   - platform: template
     device_id: crafty_device
     name: "Active"
