@@ -34,7 +34,7 @@ sensor:
     device_class: temperature
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -77,7 +77,7 @@ sensor:
     device_class: temperature
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -101,7 +101,7 @@ sensor:
     characteristic_uuid: "00000041-4c45-4b43-4942-265a524f5453"
     device_class: battery
     unit_of_measurement: "%"
-    update_interval: 5min
+    update_interval: 1min
     # The source app subscribes to battery notifications.
     notify: true
     lambda: |-
@@ -121,7 +121,7 @@ sensor:
     service_uuid: "00000001-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000051-4c45-4b43-4942-265a524f5453"
     unit_of_measurement: "%"
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -142,7 +142,7 @@ sensor:
     characteristic_uuid: "00000061-4c45-4b43-4942-265a524f5453"
     device_class: duration
     unit_of_measurement: "s"
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -183,7 +183,7 @@ sensor:
     characteristic_uuid: "00000023-4c45-4b43-4942-265a524f5453"
     device_class: duration
     unit_of_measurement: "h"
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -201,7 +201,7 @@ sensor:
     characteristic_uuid: "000001e3-4c45-4b43-4942-265a524f5453"
     device_class: duration
     unit_of_measurement: "min"
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -217,7 +217,7 @@ sensor:
     unit_of_measurement: "h"
     accuracy_decimals: 2
     state_class: total_increasing
-    update_interval: 5min
+    update_interval: 1min
     lambda: |-
       if (!id(sensor_ble_crafty_accumulated_hours).has_state() ||
           !id(sensor_ble_crafty_accumulated_minutes).has_state()) {
@@ -274,7 +274,7 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000083-4c45-4b43-4942-265a524f5453"
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -290,7 +290,7 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000063-4c45-4b43-4942-265a524f5453"
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -306,7 +306,7 @@ sensor:
     type: characteristic
     service_uuid: "00000003-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000073-4c45-4b43-4942-265a524f5453"
-    update_interval: 5min
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 2) {
@@ -323,7 +323,7 @@ sensor:
     type: characteristic
     service_uuid: "00000002-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000072-4c45-4b43-4942-265a524f5453"
-    update_interval: 6h
+    update_interval: 1min
     internal: true
     lambda: |-
       if (x.size() < 3) {
@@ -342,7 +342,7 @@ sensor:
     type: rssi
     id: sensor_ble_crafty_rssi
     entity_category: diagnostic
-    update_interval: 5min
+    update_interval: 1min
 
 # -----------------------------------------------------------------------------
 # Device information
@@ -356,7 +356,7 @@ text_sensor:
     id: text_sensor_ble_crafty_serial
     service_uuid: "00000002-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000052-4c45-4b43-4942-265a524f5453"
-    update_interval: 6h
+    update_interval: 1min
     entity_category: diagnostic
     filters:
       - lambda: |-
@@ -376,7 +376,7 @@ text_sensor:
     id: text_sensor_ble_crafty_firmware
     service_uuid: "00000002-4c45-4b43-4942-265a524f5453"
     characteristic_uuid: "00000032-4c45-4b43-4942-265a524f5453"
-    update_interval: 6h
+    update_interval: 1min
     entity_category: diagnostic
     filters:
       - lambda: |-
@@ -391,7 +391,7 @@ text_sensor:
     name: "BLE Firmware Version"
     id: text_sensor_crafty_ble_firmware
     entity_category: diagnostic
-    update_interval: 5min
+    update_interval: 1min
     lambda: |-
       if (!id(sensor_ble_crafty_ble_firmware_packed).has_state()) {
         return {};
