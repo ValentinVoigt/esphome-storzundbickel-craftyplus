@@ -1,6 +1,22 @@
 substitutions:
+  # Just for display in your Home Assistant
   crafty_name: "CRAFTY+"
+
+  # The MAC address of your CRAFTY+ device
   crafty_mac_address: "00:00:00:00:00:00"
+
+  # How long to stay connected if the device is idle (no active session) and
+  # unplugged before disconnecting to save battery, in milliseconds
+  crafty_connected_time_ms: "60000"
+
+  # How long to stay disconnected before re-connecting, in milliseconds. This
+  # lets the CRAFTY+ enter its own sleep mode and save battery. If Permanent
+  # Bluetooth is not enabled, the device is not active and not charging, we
+  # expect the reconnect to fail. The ESP will keep trying to reconnect
+  # indefinitely; probably until you activate the device or plug it in.
+  # This value has been chosen to allow the CRAFTY+ to enter its own sleep mode,
+  # which is about 5 minutes after the last disconnect.
+  crafty_sleep_mode_time_ms: "300000"
 
 esphome:
   devices:
@@ -17,11 +33,13 @@ ble_client:
       then:
         - lambda: |-
             id(crafty_ble_connected) = true;
+            id(crafty_last_connection_change_ms) = millis();
             id(crafty_connected).publish_state(true);
     on_disconnect:
       then:
         - lambda: |-
             id(crafty_ble_connected) = false;
+            id(crafty_last_connection_change_ms) = millis();
             id(crafty_connected).publish_state(false);
 
 globals:
@@ -29,6 +47,45 @@ globals:
     type: bool
     restore_value: false
     initial_value: "false"
+  - id: crafty_sleeping_mode
+    type: bool
+    restore_value: false
+    initial_value: "false"
+  - id: crafty_last_connection_change_ms
+    type: uint32_t
+    restore_value: false
+    initial_value: "0"
+
+interval:
+  - interval: 10s
+    then:
+      - lambda: |-
+          const uint32_t now_ms = millis();
+          // Unsigned subtraction intentionally handles millis() wrapping back
+          // to zero after approximately 49.7 days.
+          const uint32_t elapsed_ms = now_ms - id(crafty_last_connection_change_ms);
+          const uint32_t connected_time_ms = ${crafty_connected_time_ms};
+          const uint32_t sleep_mode_time_ms = ${crafty_sleep_mode_time_ms};
+
+          if (id(crafty_ble_connected) &&
+              !id(crafty_sleeping_mode) &&
+              !id(crafty_active).state &&
+              id(crafty_charger_connected).has_state() &&
+              !id(crafty_charger_connected).state &&
+              elapsed_ms >= connected_time_ms) {
+            ESP_LOGD("crafty_client", "Connected for %lu ms; enabling sleep mode",
+                     static_cast<unsigned long>(connected_time_ms));
+            id(ble_client_crafty).set_auto_connect(false);
+            id(ble_client_crafty).disconnect();
+            id(crafty_sleeping_mode) = true;
+          } else if (!id(crafty_ble_connected) &&
+                     id(crafty_sleeping_mode) &&
+                     elapsed_ms >= sleep_mode_time_ms) {
+            ESP_LOGD("crafty_client", "Disconnected in sleep mode for %lu ms; disabling sleep mode",
+                     static_cast<unsigned long>(sleep_mode_time_ms));
+            id(crafty_sleeping_mode) = false;
+            id(ble_client_crafty).set_auto_connect(true);
+          }
 
 # -----------------------------------------------------------------------------
 # Raw BLE sensors
